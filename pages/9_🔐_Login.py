@@ -1,5 +1,4 @@
 import streamlit as st
-import time
 
 def configure():
     # This code reloads saved variables values from session state
