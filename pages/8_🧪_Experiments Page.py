@@ -13,23 +13,23 @@ def configure():
         initial_sidebar_state="auto"
     )
 
-def main():
-    with st.columns([1, 2, 1])[1]:
-        if "images" in st.session_state.keys():
-            images = st.session_state.images
-        else:
-            images = get_images()
-            if images is not None and len(images) > 0:
-                st.session_state["images"] = images
 
-        if len(images) > 0:
-            gallery(images)
+def gallery_test():
+    if "images" in st.session_state.keys():
+        images = st.session_state.images
+    else:
+        images = get_images()
+        if images is not None and len(images) > 0:
+            st.session_state["images"] = images
 
-        if st.button("Empty Image List"):
-            st.session_state.pop("images")
-            st.success("Images erased successfully!")
-            time.sleep(1)
-            st.rerun()
+    if len(images) > 0:
+        gallery(images)
+
+    if st.button("Empty Image List"):
+        st.session_state.pop("images")
+        st.success("Images erased successfully!")
+        time.sleep(1)
+        st.rerun()
 
 
 def get_images():
@@ -46,6 +46,12 @@ def gallery(images):
     image = images[index-1]
 
     st.image(image, use_column_width=True)
+
+
+def main():
+    with st.columns([1, 2, 1])[1]:
+        with st.expander("Gallery"):
+            gallery_test()
 
 if __name__ == '__main__':
     configure()
