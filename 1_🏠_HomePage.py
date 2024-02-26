@@ -26,7 +26,7 @@ def configure():
 
 def main():
     text = "Welcome "
-    text += st.session_state["user"]["name"] if "user" in st.session_state.keys() else "Guest"
+    text += st.session_state["user"]["nickname"] if "user" in st.session_state.keys() else "Guest"
     st.write(":blue[" + text+"]")
     st_vertical_space(3)
     st.write("where would you want to go?")
