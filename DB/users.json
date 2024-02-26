@@ -1,0 +1,27 @@
+{
+    "Ege BULUT": {
+        "name": "ege",
+        "password": "bulut",
+        "email": "egebulut.iletisim@outlook.com"
+    },
+    "ege.the.engineer": {
+        "name": "admin",
+        "password": "admin",
+        "email": "dumpmail@gmail.com"
+    },
+    "LordPacTR": {
+        "name": "author",
+        "password": "ofthisproject",
+        "email": "wowcool@mail.com"
+    },
+    "Pacman": {
+        "name": "PacTR",
+        "password": "Pac123",
+        "email": "Pac@Pacpac.com"
+    },
+    "Ege BULUT 2": {
+        "name": "EGE",
+        "password": "BULUT",
+        "email": "wowwth@gmail.com"
+    }
+}
