@@ -93,7 +93,7 @@ def login():
 
 def already_logged_in():
     user = st.session_state["user"]
-    c1, c2, _ = st.columns([3, 6, 40])
+    c1, c2, _ = st.columns([5, 8, 35])
     with c1:
         if st.button("log out"):
             st.session_state.pop("user")
@@ -105,9 +105,9 @@ def already_logged_in():
 
 def main():
     if "user" in st.session_state.keys():
-        st.write("Welcome", st.session_state["user"]["name"])
+        st.write(":blue[Welcome", st.session_state["user"]["name"]+"]")
     if "user" not in st.session_state.keys() or st.session_state["user"]["name"] == "":
-        c1, c2, _ = st.columns([1, 2, 15])
+        c1, c2, _ = st.columns([2, 3, 15])
         with c1:
             btn_login = st.empty()
         with c2 :
