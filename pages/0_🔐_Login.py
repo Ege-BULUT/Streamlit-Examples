@@ -73,6 +73,7 @@ def signup():
             # if so
             users.update({Nickname: user_info})
             json.dump(users, fp=open(users_path, "w"), indent=4)
+            st.success("Account created successfully")
 
 def login():
     with st.columns(3)[1]:
