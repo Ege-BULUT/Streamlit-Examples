@@ -11,7 +11,11 @@ def isUserExists(user, path="DB/users.json"):
     users = json.load(open(users_path))
     for key, _user in users.items():
         if _user["name"] == user["name"] and _user["password"] == user["password"]:
-            return True
+            return {
+                "name": _user["name"],
+                "password": _user["password"],
+                "nickname": key
+            }
     return False
 
 def configure():
@@ -82,8 +86,10 @@ def login():
                 "name": username,
                 "password": pw
             }
-            if isUserExists(user):
-                st.session_state.update({"user": user})
+            existed_user = isUserExists(user)
+            st.write(existed_user)
+            if type(existed_user) is dict:
+                st.session_state.update({"user": existed_user})
                 st.session_state.pop("login_page_state")
                 st.rerun()
             else:
@@ -105,7 +111,7 @@ def already_logged_in():
 
 def main():
     if "user" in st.session_state.keys():
-        st.write(":blue[Welcome", st.session_state["user"]["name"]+"]")
+        st.write(":blue[Welcome", st.session_state["user"]["nickname"]+"]")
     if "user" not in st.session_state.keys() or st.session_state["user"]["name"] == "":
         c1, c2, _ = st.columns([2, 3, 15])
         with c1:
