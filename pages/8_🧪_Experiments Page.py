@@ -15,9 +15,10 @@ def configure():
     )
 
 def main():
+    gallery = Gallery
     with st.columns([1, 2, 1])[1]:
         with st.expander("Gallery"):
-            gallery = Gallery()
+            gallery.Gallery()
 
 if __name__ == '__main__':
     configure()
