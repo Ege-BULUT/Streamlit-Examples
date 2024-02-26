@@ -100,7 +100,7 @@ def already_logged_in():
             st.rerun()
     with c2:
         if st.button("Home Page"):
-            st.switch_page("1_🏠_Home Page.py")
+            st.switch_page("1_🏠_HomePage.py")
 
 
 def main():
