@@ -12,8 +12,8 @@ def configure():
 
     st.set_page_config(
         layout="wide",
-        page_icon="🔐",
-        page_title="Login",
+        page_icon="🧪",
+        page_title="Experiments Page",
         initial_sidebar_state="auto"
     )
 
