@@ -1,8 +1,19 @@
+import io
 import time
+import plotly.io as pio
 import streamlit as st
 from CustomComponents import Gallery
 import matplotlib.pyplot as pyplot
-import plotly.express as plotly
+import plotly.graph_objects as go
+
+
+pio.templates.default = "plotly"
+
+def st_vertical_space(amount):
+    for i in range(amount):
+        st.write(" ")
+
+
 
 
 def configure():
@@ -57,9 +68,49 @@ def st_interactive_chart(with_expander=True, centered=False):
             interactive_chart()
 
 
-def interactive_chart():
+def interactive_chart(downloadable=True):
+    if "isPlotly" not in st.session_state:
+        st.session_state["isPlotly"] = False
 
     chart_placeholder = st.empty()
+
+    if downloadable:
+        buffer = io.BytesIO()
+        _, c1, c2, _ = st.columns([4, 5, 5, 4])
+        with c1:
+            st_vertical_space(2)
+            download_btn = st.empty()
+        with c2:
+            if st.session_state["isPlotly"]:
+                download_file_type = st.selectbox(help=":blue[File Type]", options=["html"],
+                                                  index=0, label=" ")
+
+            else:
+                download_file_type = st.selectbox(help=":blue[File Type]", options=["svg", "png", "jpg", "pdf", "webp"],
+                                                  index=0, label=" ")
+            mime_types = {
+                "png": "image/png",
+                "jpg": "image/jpeg",
+                "svg": "image/svg+xml",
+                "pdf": "application/pdf",
+                "webp": "image/webp",
+                "html": "text/html",
+            }
+
+    _, c1, c2, c3, _ = st.columns([3, 1, 1, 1, 3])
+    with c1:
+        if not st.session_state["isPlotly"]:
+            st.write(":blue[pyplot]")
+        else:
+            st.write(":gray[pyplot]")
+    with c2:
+        isPlotly = st.toggle("pyplot | plotly", label_visibility="collapsed", key="isPlotly")
+    with c3:
+        if st.session_state["isPlotly"]:
+            st.write(":blue[plotly]")
+        else:
+            st.write(":gray[plotly]")
+
 
     separator = st.text_input(max_chars=1, placeholder="Seperator", label=" ", value=",",
                               help=":blue[Seperator]  \nSeparates each one of x and y values.  \n"
@@ -137,32 +188,29 @@ def interactive_chart():
                             except Exception as _:
                                 st.write(str(y))
 
-    if "isPlotly" not in st.session_state:
-        st.session_state["isPlotly"] = False
-    if st.session_state["values"]["x"] != [] and st.session_state["values"]["y"] != []:
-        c1, c2, c3 = st.columns([8,5,40])
-        with c1:
-            if not st.session_state["isPlotly"]:
-                st.write(":blue[pyplot]")
-            else:
-                st.write(":gray[pyplot]")
-        with c2:
-            isPlotly = st.toggle("pyplot | plotly", label_visibility="collapsed", key="isPlotly")
-        with c3:
-            if st.session_state["isPlotly"]:
-                st.write(":blue[plotly]")
-            else:
-                st.write(":gray[plotly]")
 
         chart_type = st.selectbox("Chart Type", options=["line", "bar", "scatter", "pie chart"])
         if isPlotly:
-            st.session_state["plot_type"] = "pyplot" # previous value
-            chart_placeholder.plotly_chart(get_chart(st.session_state["values"]["x"], st.session_state["values"]["y"],
-                                            "plotly", chart_type=chart_type), use_container_width=True)
+            plot = get_chart(st.session_state["values"]["x"], st.session_state["values"]["y"],
+                             plt_type="plotly", chart_type=chart_type)
+            chart_placeholder.plotly_chart(plot, use_container_width=True)
+            if downloadable:
+                plot.write_image(file=buffer, format="svg")
+
         if not isPlotly:
-            st.session_state["plot_type"] = "plotly" # previous value
-            chart_placeholder.pyplot(get_chart(st.session_state["values"]["x"], st.session_state["values"]["y"],
-                                            "pyplot", chart_type=chart_type), use_container_width=True)
+            plot = get_chart(st.session_state["values"]["x"], st.session_state["values"]["y"],
+                                            plt_type="pyplot", chart_type=chart_type)
+            chart_placeholder.pyplot(plot, use_container_width=True)
+            if downloadable:
+                plot.savefig(buffer, format=download_file_type)
+
+    if downloadable:
+        download_btn.download_button(
+            label="Download Plot",
+            data=buffer,
+            file_name="Plot_"+str(time.time())+"."+download_file_type,
+            mime=mime_types[download_file_type],
+        )
 
 
 def get_chart(x, y, plt_type, chart_type):
@@ -184,18 +232,19 @@ def get_chart(x, y, plt_type, chart_type):
         plot = fig
 
     elif plt_type == "plotly":
+        plot = go.Figure()
         if chart_type == "line":
-            plot = plotly.line([x, y], markers=True, x=x, y=y)
+            plot.add_trace(go.Scatter(x=x, y=y))
         elif chart_type == "bar":
-            plot = plotly.bar([x, y], x=x, y=y)
+            plot.add_trace(go.Bar([x, y], x=x, y=y))
         elif chart_type == "scatter":
-            plot = plotly.scatter([x, y], x=x, y=y)
+            plot.add_trace(go.Scatter([x, y], x=x, y=y))
         elif chart_type == "pie chart":
             if len(x) != len(y):
                 st.error("! The length of x and y is not matched.")
-                plot = plotly.pie(x)
+                plot.add_trace(go.Pie(x))
             else:
-                plot = plotly.pie([x, y], values=x, names=y, hole=0.2)
+                plot.add_trace(go.Pie(values=x, labels=y, hole=0.2))
                 plot.update_traces(textposition='inside', textinfo='percent+label')
 
     return plot
