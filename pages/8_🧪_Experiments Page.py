@@ -6,7 +6,7 @@ import plotly.express as plotly
 
 
 def configure():
-    # This code reloads saved variables values from session state
+    # This code reloads saved variable values from the session state
     for k in st.session_state.keys():
         st.session_state[k] = st.session_state[k]
 
