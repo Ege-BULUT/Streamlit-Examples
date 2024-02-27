@@ -15,6 +15,8 @@ def configure():
     )
 
 def main():
+    with st.columns(3)[1]:
+        st.title("Experiments Page")
     gallery = Gallery
     with st.columns([1, 2, 1])[1]:
         with st.expander("Gallery"):
