@@ -111,6 +111,7 @@ def already_logged_in():
 
 
 def main():
+    st.title("Login Page")
     if "user" in st.session_state.keys():
         st.write(":blue[Welcome", st.session_state["user"]["nickname"]+"]")
     if "user" not in st.session_state.keys() or st.session_state["user"]["name"] == "":
