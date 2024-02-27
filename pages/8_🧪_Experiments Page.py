@@ -87,9 +87,9 @@ def interactive_chart():
         st.session_state["values"]["x"] = x_values_arr if len(x_values_arr) > 0 else st.session_state["values"]["x"]
 
 
-        show_x = st.checkbox("Show X Values:")
+        show_x = st.checkbox("Show X Values:", key="show_x")
         if show_x:
-            mode = st.toggle("Vertical", value=False)
+            mode = st.toggle("Vertical", value=False, key="vertical_x")
             if mode:
                 st.write(st.session_state["values"]["x"])
             else:
@@ -120,9 +120,9 @@ def interactive_chart():
         st.session_state["values"]["y"] = y_values_arr if len(y_values_arr) > 0 else st.session_state["values"]["y"]
 
 
-        show_y = st.checkbox("Show Y Values:")
+        show_y = st.checkbox("Show Y Values:", key="show_y")
         if show_y:
-            mode = st.toggle("Vertical", value=False)
+            mode = st.toggle("Vertical", value=False, key="vertical_y")
             if mode:
                 st.write(st.session_state["values"]["y"])
             else:
