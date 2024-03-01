@@ -9,17 +9,17 @@ import plotly.graph_objects as go
 
 pio.templates.default = "plotly"
 
+for k in st.session_state.keys():
+    st.session_state[k] = st.session_state[k]
+if "latest_index" not in st.session_state.keys():
+    st.session_state["latest_index"] = []
+
 def st_vertical_space(amount):
     for i in range(amount):
         st.write(" ")
 
-
-
-
 def configure():
     # This code reloads saved variable values from the session state
-    for k in st.session_state.keys():
-        st.session_state[k] = st.session_state[k]
 
     st.set_page_config(
         layout="wide",
@@ -249,9 +249,208 @@ def get_chart(x, y, plt_type, chart_type):
 
     return plot
 
+
+
+# # # GENERIC INPUTS # # #
+
+def st_input(item, show_label):
+    default_types = {
+        bool: "toggle",
+        str: "text_input",
+        int: "number_input",
+        float: "number_input"
+    }
+
+    item["label"] = item["label"] if "label" in item.keys() else item["value"].__class__.__name__ + " input"
+
+    print("debug : ", item)
+    _label = item["label"]
+    _value = item["value"]
+    _help  = item["help"] if "help" in item.keys() else None
+    _type  = item["type"] if "type" in item.keys() else default_types
+    _key   = item["key"]
+    output_value = ""
+
+    if "hidden" in item.keys() and item["hidden"]:
+        print("hidden true", item["label"])
+        return {item["key"]: item["value"]}
+
+    else:
+        print("hidden false", item["label"])
+        if show_label:
+            _label_visibility = "visible"
+        else:
+            _label_visibility = "collapsed"
+
+        if "multi_select" in item.keys() and item["multi_select"]:
+            _options = item["options"]
+            if _type == "select_slider":
+                output_value = st.select_slider(label=_label, options=_options, value=_value, label_visibility=_label_visibility, help=_help )
+            elif _type == "selectbox":
+                output_value = st.selectbox(label=_label, options=_options, index=_options.index(_value), label_visibility=_label_visibility, help=_help )
+            elif _type == "multiselect":
+                output_value = st.multiselect(label=_label, options=_options, label_visibility=_label_visibility, help=_help, default=_value )
+
+        if _type == "number_input":
+            output_value = st.number_input(label=_label, help=_help, value=_value, label_visibility=_label_visibility)
+        if _type == "slider":
+            output_value = st.slider(label=_label, help=_help, value=_value, label_visibility=_label_visibility)
+        elif _type == "text_input":
+            output_value = st.text_input(label=_label, help=_help, value=_value, label_visibility=_label_visibility)
+        elif _type == "password":
+            output_value = st.text_input(label=_label, help=_help, value=_value, type="password", label_visibility=_label_visibility)
+        elif _type == "toggle":
+            output_value = st.toggle(label=_label, help=_help, value=_value, label_visibility=_label_visibility)
+        elif _type == "checkbox":
+            output_value = st.toggle(label=_label, help=_help, value=_value, label_visibility=_label_visibility)
+
+        return {_key: output_value}
+
+
+def prepare_pack(items):
+    latest_index = len(st.session_state["latest_index"])
+
+    pack = {"value": items,
+             "label": items.__class__.__name__ + " input",
+             "help": "Default value is : :blue[" + str(items) + "]",
+             "key": str(items) + "_" + items.__class__.__name__,
+            }
+
+    return pack
+
+def generate_inputs(items, input_positions=None, show_labels=True, label_position="top"):
+    default_types = {
+        bool: "toggle",
+        str: "text_input",
+        int: "number_input",
+        float: "number_input"
+    }
+    if input_positions is None:
+        try:
+            input_positions = [st.container(), st.expander("Advanced")]
+        except Exception as e:
+            normal_inputs = st.container()
+            advanced_inputs = st.container()
+            input_positions = [normal_inputs, advanced_inputs]
+    elif type(input_positions) is not list:
+        input_positions = [input_positions, input_positions]
+
+    latest_index = len(st.session_state["latest_index"])
+
+
+    label_visibility = "visible" if (show_labels and label_position == "top") else "collapsed"
+
+    # IF input iterable is not an iterable (single value)
+    if type(items) in [str, int, bool, float]:
+        items = prepare_pack(items)
+        items.update({"label_visibility": label_visibility})
+        values = generate_inputs(items, input_positions, show_labels, label_position)
+        return values
+    elif type(items) in [list, set, tuple]:
+        values = dict()
+        for item in items:
+            value_2 = generate_inputs(item, input_positions=input_positions, show_labels=show_labels, label_position=label_position)
+            values.update(value_2)
+        return values
+    elif type(items) is dict:
+        if "value" not in items.keys():
+            dict_arr = []
+            for key1, value1 in items.items():
+                temp_dict = {
+                    "key": key1,
+                    "label": key1.replace("_", " ").capitalize(),
+                    "value": value1,
+                    "type": default_types[type(value1)]
+                }
+                dict_arr.append(temp_dict)
+            return generate_inputs(dict_arr, input_positions=input_positions, show_labels=show_labels, label_position=label_position)
+        else:
+            if "type" not in items.keys():
+                items.update({"type": default_types[type(items["value"])]})
+            if "key" not in items.keys():
+                items.update({"key": str(items["value"]) + "_" + items.__class__.__name__})
+            items.update({"label_visibility": label_visibility})
+            if "advanced" in items.keys() and items["advanced"]:
+                with input_positions[1]:
+                    values = st_input(items, show_label=show_labels )
+            elif "hidden" in items.keys() and items["hidden"]:
+                return {items["key"]: items["value"]}
+            else:
+                with input_positions[0]:
+                    values = st_input(items, show_label=show_labels )
+            #st.session_state["latest_index"].append(values)
+            return values
+
+
+
+
+def example_generic_inputs():
+    with st.expander("Generic Inputs"):
+        # Single value example
+
+        c1, c2, c3 = st.columns([3, 3, 3])
+        with c1:
+            st.subheader("Single value example")
+            st.write("generate_inputs(':blue[abc]')")
+            returned_value = generate_inputs("abc")
+            c11, c12 = st.columns([2,4])
+            with c11:
+                st.write("returned value is")
+            with c12:
+                st.write(":orange["+str(returned_value)+"]")
+        with c2:
+            st.subheader("Single value detailed example")
+            st.write("generate_inputs(  \n{'value': :blue[5],  'type':':blue[slider]',  'label':':blue[number slider]'})")
+            returned_value = generate_inputs({'value': 5, 'type': 'slider', 'label': 'number slider'})
+            c11, c12 = st.columns([2,4])
+            with c11:
+                st.write("returned value is")
+            with c12:
+                st.write(":orange["+str(returned_value)+"]")
+        with c3:
+            st.subheader("Multi value example")
+            st.write("generate_inputs([1, 'abc', True])")
+            returned_value = generate_inputs([1, 'xyz', True])
+            c11, c12 = st.columns([2,4])
+            with c11:
+                st.write("returned value is")
+            with c12:
+                st.write(":orange["+str(returned_value)+"]")
+
+        c1, c2, c3 = st.columns([1, 3, 1])
+        with c2:
+            st.subheader("Multi value detailed example")
+            st.text("generate_inputs("
+                     "  \n  ["
+                     "  \n    {'value': 10, 'type': 'slider'},"
+                     "  \n    {'value': 100},"
+                     "  \n    {'value': 'ege bulut'},"
+                     "  \n    {'value': 'ege.the.engineer', type='password'},"
+                     "  \n    {'value': 'ege', 'multi_select':True, 'type': 'multiselect',"
+                     "  \n     'options':['ege','bulut','the', 'engineer']},"
+                     "  \n    {'value': 'ege', 'multi_select':True, 'type': 'select_slider',"
+                     "  \n     'options':['ege','bulut','the', 'engineer']},"
+                     "  \n    {'value': 'ege', 'multi_select':True, 'type': 'selectbox',"
+                     "  \n     'options':['ege','bulut','the', 'engineer']},"
+                     "  \n  ]"
+                     "  \n)")
+
+            returned_value = generate_inputs([{'value': 10, 'type': 'slider'}, {'value': 100}, {'value': 'ege bulut'}, {'value': 'ege.the.engineer', "type": 'password'},
+                                {'value': 'ege', 'multi_select': True, 'type': 'multiselect',   'options': ['ege', 'bulut', 'the', 'engineer']},
+                                {'value': 'ege', 'multi_select': True, 'type': 'select_slider', 'options': ['ege', 'bulut', 'the', 'engineer']},
+                                {'value': 'ege', 'multi_select': True, 'type': 'selectbox',     'options': ['ege', 'bulut', 'the', 'engineer']},]
+                        )
+            c11, c12 = st.columns([2, 4])
+            with c11:
+                st.write("returned value is")
+            with c12:
+                st.write(":orange[" + str(returned_value) + "]")
+
+
 def main():
     st_gallery(with_expander=True, centered=True)
     st_interactive_chart(with_expander=True, centered=True)
+    example_generic_inputs()
 
 if __name__ == '__main__':
     configure()
