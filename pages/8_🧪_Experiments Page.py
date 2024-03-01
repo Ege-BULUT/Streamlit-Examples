@@ -409,7 +409,7 @@ def example_generic_inputs():
                 st.write(":orange["+str(returned_value)+"]")
         with c3:
             st.subheader("Multi value example")
-            st.write("generate_inputs([1, 'abc', True])")
+            st.write("generate_inputs([1, 'xyz', True])")
             returned_value = generate_inputs([1, 'xyz', True])
             c11, c12 = st.columns([2,4])
             with c11:
