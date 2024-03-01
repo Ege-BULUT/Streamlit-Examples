@@ -388,7 +388,7 @@ def example_generic_inputs():
     with st.expander("Generic Inputs"):
         # Single value example
 
-        c1, c2, c3 = st.columns([3, 3, 3])
+        c1, c2 = st.columns([3, 3])
         with c1:
             st.subheader("Single value example")
             st.write("generate_inputs(':blue[abc]')")
@@ -399,15 +399,6 @@ def example_generic_inputs():
             with c12:
                 st.write(":orange["+str(returned_value)+"]")
         with c2:
-            st.subheader("Single value detailed example")
-            st.write("generate_inputs(  \n{'value': :blue[5],  'type':':blue[slider]',  'label':':blue[number slider]'})")
-            returned_value = generate_inputs({'value': 5, 'type': 'slider', 'label': 'number slider'})
-            c11, c12 = st.columns([2,4])
-            with c11:
-                st.write("returned value is")
-            with c12:
-                st.write(":orange["+str(returned_value)+"]")
-        with c3:
             st.subheader("Multi value example")
             st.write("generate_inputs([1, 'XYZ', True])")
             returned_value = generate_inputs([1, 'xyz', True])
@@ -417,7 +408,18 @@ def example_generic_inputs():
             with c12:
                 st.write(":orange["+str(returned_value)+"]")
 
-        c1, c2, c3 = st.columns([1, 3, 1])
+        st_vertical_space(4)
+        c1, c2 = st.columns([3, 3])
+        with c1:
+            st.subheader("Single value detailed example")
+            st.write(
+                "generate_inputs({'value': :blue[5],  'type':':blue[slider]',  'label':':blue[number slider]'})")
+            returned_value = generate_inputs({'value': 5, 'type': 'slider', 'label': 'number slider'})
+            c11, c12 = st.columns([2, 4])
+            with c11:
+                st.write("returned value is")
+            with c12:
+                st.write(":orange[" + str(returned_value) + "]")
         with c2:
             st.subheader("Multi value detailed example")
             st.text("generate_inputs("
